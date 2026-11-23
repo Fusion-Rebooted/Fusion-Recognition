@@ -1,0 +1,41 @@
+{
+  "version": "4.3.3",
+  "flags": {},
+  "checked": false,
+  "shapes": [
+    {
+      "review_status": "pending",
+      "label": "brick",
+      "score": null,
+      "points": [
+        [
+          1567.4322916666665,
+          1689.4739583333335
+        ],
+        [
+          1567.4322916666665,
+          1292.933779761905
+        ],
+        [
+          2194.459821428571,
+          1292.933779761905
+        ],
+        [
+          2194.459821428571,
+          1689.4739583333335
+        ]
+      ],
+      "group_id": null,
+      "description": "",
+      "difficult": false,
+      "shape_type": "rectangle",
+      "flags": {},
+      "attributes": {},
+      "kie_linking": []
+    }
+  ],
+  "imagePath": "../images/6075617_IMG_7866.JPG",
+  "imageData": null,
+  "imageHeight": 3024,
+  "imageWidth": 4032
+}

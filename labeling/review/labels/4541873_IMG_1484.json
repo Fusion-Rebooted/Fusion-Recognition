@@ -1,0 +1,101 @@
+{
+  "version": "4.3.3",
+  "flags": {},
+  "checked": true,
+  "shapes": [
+    {
+      "label": "brick",
+      "score": null,
+      "points": [
+        [
+          1339.5853271484375,
+          1012.0636596679688
+        ],
+        [
+          2236.427734375,
+          1012.0636596679688
+        ],
+        [
+          2236.427734375,
+          1806.40771484375
+        ],
+        [
+          1339.5853271484375,
+          1806.40771484375
+        ]
+      ],
+      "group_id": null,
+      "description": "auto 0.87",
+      "difficult": false,
+      "shape_type": "rectangle",
+      "flags": {},
+      "attributes": {},
+      "kie_linking": []
+    },
+    {
+      "review_status": "pending",
+      "label": "4541873",
+      "score": null,
+      "points": [
+        [
+          1436.78125,
+          1113.8619791666667
+        ],
+        [
+          2144.9713541666665,
+          1113.8619791666667
+        ],
+        [
+          2144.9713541666665,
+          1699.1614583333333
+        ],
+        [
+          1436.78125,
+          1699.1614583333333
+        ]
+      ],
+      "group_id": null,
+      "description": "",
+      "difficult": false,
+      "shape_type": "rectangle",
+      "flags": {},
+      "attributes": {},
+      "kie_linking": []
+    },
+    {
+      "review_status": "pending",
+      "label": "4530590",
+      "score": null,
+      "points": [
+        [
+          1416.8333333333335,
+          1061.140625
+        ],
+        [
+          2189.6848958333335,
+          1061.140625
+        ],
+        [
+          2189.6848958333335,
+          1780.8151041666667
+        ],
+        [
+          1416.8333333333335,
+          1780.8151041666667
+        ]
+      ],
+      "group_id": null,
+      "description": "",
+      "difficult": false,
+      "shape_type": "rectangle",
+      "flags": {},
+      "attributes": {},
+      "kie_linking": []
+    }
+  ],
+  "imagePath": "../images/4541873_IMG_1484.JPG",
+  "imageData": null,
+  "imageHeight": 3024,
+  "imageWidth": 4032,
+  "description": ""
+}

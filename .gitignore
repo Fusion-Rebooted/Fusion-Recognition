@@ -1,0 +1,31 @@
+# environments
+.venv/
+.venv-label/
+__pycache__/
+.ipynb_checkpoints/
+
+# photos (12 GB) and everything rebuilt from them
+dataset/
+cache1024/
+crops224/
+cutouts/
+synth/
+synth_v2/
+yolo41/
+yolo_box/
+eda/
+labeling/images/
+labeling/review/images/
+labeling/labels_backup_before_rotfix/
+labeling/x-anylabeling-exif-backup/
+real/
+
+# trained weights (too big for git; share via GitHub Releases)
+models/*
+!models/shape_embed.pt
+runs/
+*.pt
+*.cache
+!models/shape_embed.pt
+photos/
+ldraw/

@@ -1,0 +1,101 @@
+{
+  "version": "4.3.3",
+  "flags": {},
+  "checked": false,
+  "shapes": [
+    {
+      "label": "brick",
+      "score": null,
+      "points": [
+        [
+          1433.355712890625,
+          892.3614501953125
+        ],
+        [
+          2346.466796875,
+          892.3614501953125
+        ],
+        [
+          2346.466796875,
+          1725.0787353515625
+        ],
+        [
+          1433.355712890625,
+          1725.0787353515625
+        ]
+      ],
+      "group_id": null,
+      "description": "auto 0.85",
+      "difficult": false,
+      "shape_type": "rectangle",
+      "flags": {},
+      "attributes": {},
+      "kie_linking": []
+    },
+    {
+      "review_status": "pending",
+      "label": "4530590",
+      "score": null,
+      "points": [
+        [
+          1495.7916666666665,
+          959.8776041666666
+        ],
+        [
+          2295.296875,
+          959.8776041666666
+        ],
+        [
+          2295.296875,
+          1703.2890625
+        ],
+        [
+          1495.7916666666665,
+          1703.2890625
+        ]
+      ],
+      "group_id": null,
+      "description": "",
+      "difficult": false,
+      "shape_type": "rectangle",
+      "flags": {},
+      "attributes": {},
+      "kie_linking": []
+    },
+    {
+      "review_status": "pending",
+      "label": "4541873",
+      "score": null,
+      "points": [
+        [
+          1529.2682291666665,
+          1004.2916666666666
+        ],
+        [
+          2240.0494791666665,
+          1004.2916666666666
+        ],
+        [
+          2240.0494791666665,
+          1607.4036458333333
+        ],
+        [
+          1529.2682291666665,
+          1607.4036458333333
+        ]
+      ],
+      "group_id": null,
+      "description": "",
+      "difficult": false,
+      "shape_type": "rectangle",
+      "flags": {},
+      "attributes": {},
+      "kie_linking": []
+    }
+  ],
+  "imagePath": "../images/4541873_IMG_1489.JPG",
+  "imageData": null,
+  "imageHeight": 3024,
+  "imageWidth": 4032,
+  "description": ""
+}

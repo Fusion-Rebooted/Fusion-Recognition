@@ -1,0 +1,35 @@
+{
+  "version": "4.3.3",
+  "flags": {},
+  "shapes": [
+    {
+      "label": "brick",
+      "points": [
+        [
+          1672.680419921875,
+          1250.5159912109375
+        ],
+        [
+          2448.095458984375,
+          1250.5159912109375
+        ],
+        [
+          2448.095458984375,
+          1850.098876953125
+        ],
+        [
+          1672.680419921875,
+          1850.098876953125
+        ]
+      ],
+      "shape_type": "rectangle",
+      "flags": {},
+      "group_id": null,
+      "description": "auto 0.89"
+    }
+  ],
+  "imagePath": "../images/4541873_IMG_1595.JPG",
+  "imageData": null,
+  "imageHeight": 3024,
+  "imageWidth": 4032
+}
