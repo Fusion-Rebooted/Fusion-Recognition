@@ -1,48 +1,92 @@
 # LEGO Fusion Battle Towers: brick recognition
 
-Uni project: find and identify the bricks of the LEGO Fusion Battle Towers set in photos.
-Three models are compared: a CNN (ResNet18), Faster R-CNN and YOLO. Then the best one is pushed toward real built towers.
+Recognise every LEGO piece in a photo of a tower built from LEGO set **21205 (Fusion Battle Towers)**: which shape and which colour, so the tower can eventually be rebuilt as a 3D model.
 
-## Data
-- 6491 photos of 41 brick types (one brick per photo, on a table). Not in the repo (12 GB).
-- `data/element_map.csv`: LEGO element ID → part number, name, color.
-- `data/ranges.csv`: which photo numbers (IMG_xxxx) show which element.
-- `data/labels.csv`: every photo with its element, shape (part_num) and official LEGO color ID.
-- `data/boxes.csv`: one bounding box per photo (809 drawn by hand, the rest by a model and then reviewed).
-- `labeling/labels/`: the hand-drawn boxes (X-AnyLabeling JSON).
-- `data/gallery.npz`: lookup reference sheet (shape fingerprint + Lab color per reference photo), used by `lego_lookup.py`
-- `data/exif_orientation_before.csv`: original EXIF orientation tags, which were stripped from the photos.
+| Task | Status | Result |
+|---|---|---|
+| Name a brick photographed **alone on a table** | ✅ works | 98–99% shape + colour |
+| Add a **new piece** without retraining | ✅ works | ~20 photos; shapes never trained on: 81% |
+| Name every brick in a **real tower photo** | ❌ open problem | bricks are found, naming is unreliable ([why](docs/explanation/why-towers-fail.md)) |
 
-## Notebooks (`notebooks/`, run in this order)
-| Notebook | What it does |
+## Try it (5 lines)
+
+```python
+import lego_lookup as L, numpy as np
+emb, gal = L.load_embedder(), L.load_gallery()
+[(path, crop)] = L.crops_from_photos(['dataset/3005_5_4113915/IMG_1074.JPG'])
+shape, sim, color, _ = L.recognize(gal, L.embed(emb, [crop]), np.array([L.brick_lab(crop)]), closed_set=True)[0]
+print(shape, color, round(sim, 3))   # -> 3005 5 0.997   (brick 1x1, LEGO colour 5 = Tan)
+```
+
+New here? Follow the **[tutorial](docs/tutorial.md)** (10 minutes: install, download, recognise your first brick).
+
+## How it works
+
+```mermaid
+flowchart LR
+    A[photo] --> B[box detector<br/>finds the brick]
+    B --> C[224px crop]
+    C --> D[grayscale ResNet18<br/>shape fingerprint]
+    C --> E[median Lab colour]
+    D --> F{nearest matches<br/>in the gallery}
+    E --> F
+    F --> G[part number + LEGO colour<br/>or 'unknown']
+```
+
+Instead of a classifier with fixed classes, every brick is compared with a **gallery** of ~20 reference photos per piece. Teaching a new piece = adding photos, no retraining. Full explanation: [how recognition works](docs/explanation/how-recognition-works.md).
+
+How the data was made:
+
+```mermaid
+flowchart LR
+    R[raw photos] -->|scripts/build_dataset.py| L[data/labels.csv]
+    L -->|809 hand boxes + autolabel.ipynb| BX[data/boxes.csv]
+    BX -->|compare.ipynb| CR[crops224/]
+    CR -->|lookup.ipynb| M[models/shape_embed.pt]
+    CR -->|lookup.ipynb| G[data/gallery.npz]
+```
+
+## Documentation
+
+| I want to… | Read |
 |---|---|
-| `eda.ipynb` | Class balance, brightness/blur, color separability |
-| `autolabel.ipynb` | Trains a 1-class brick detector on the hand boxes, boxes the remaining photos, flags doubtful ones for review |
-| `compare.ipynb` | Trains and compares CNN, Faster R-CNN and YOLO on the same 70/15/15 split |
-| `test_real.ipynb` | Runs the models on real tower photos (`real/`), tiling, and why they fail |
-| `synth.ipynb` | Builds synthetic tower scenes from brick cutouts and trains YOLO on them |
-| `lookup.ipynb` | Shape + color by gallery lookup: trains the color-blind fingerprint, builds `data/gallery.npz`, tests new/unknown pieces |
+| get started | [Tutorial](docs/tutorial.md) |
+| download the photos and weights | [Get the data](docs/how-to/get-data.md) |
+| add a new piece or colour | [Add a piece](docs/how-to/add-piece.md) |
+| retrain the models / rebuild the gallery | [Retrain](docs/how-to/retrain.md) |
+| label photos | [Label photos](docs/how-to/label.md) |
+| know what a file, column or folder is | [Data files](docs/reference/data-files.md) · [Folders](docs/reference/folders.md) · [`lego_lookup` API](docs/reference/lego_lookup.md) |
+| understand the design | [How recognition works](docs/explanation/how-recognition-works.md) · [Why towers fail](docs/explanation/why-towers-fail.md) · [Decisions](docs/explanation/decisions/) |
+| know what the data and model are good for | [Datasheet](docs/datasheet.md) · [Model card](docs/model-card.md) |
+| see every experiment | [Notebooks](#notebooks) · [Development log](docs/DEVELOPMENT_LOG.md) |
 
-## Renders (LDraw)
-`ldraw_render.py` draws any LDraw part in any color from any angle on the GPU (about 1 ms per image), headless. Needs the LDraw library in `ldraw/`:
+## Notebooks
+
+The experiments. Each one opens with *what it does / needs / writes*, explains every cell, and ends with a conclusion.
+
+| # | Notebook | Question |
+|---|---|---|
+| 1 | `eda` | What does the dataset look like? |
+| 2 | `autolabel` | How were 6491 photos boxed from 809 hand boxes? |
+| 3 | `blur` | Which photos are blurry, what needs reshooting? |
+| 4 | `compare` | CNN vs YOLO vs Faster R-CNN on single bricks |
+| 5 | `lookup` | The gallery lookup: accuracy, unknown pieces, new pieces |
+| 6 | `renders` | Can 3D renders replace real photos? |
+| 7 | `test_real` | What happens on real towers |
+| 8 | `synth` | YOLO trained on fake pasted towers |
+| 9 | `towers` | Random 3D towers with exact labels, `.ldr` export |
+| 10 | `tower_seg` | Brick segmenter trained on 3D towers |
+| 11 | `pipeline` | Classic image processing: tower mask → one region per brick |
+
+## Repo map
+
 ```
-curl -LO https://library.ldraw.org/library/updates/complete.zip && unzip complete.zip && rm complete.zip
-```
-`data/lego_colors.csv` maps LEGO color IDs to LDraw color codes.
-
-## App
-`.venv/bin/python app.py` → http://127.0.0.1:7860. Upload ~20 photos of one new brick; Brickognize (brickognize.com) suggests the part number and color, you confirm, and it is added to `data/gallery.npz`. Photos are kept in `photos/<part>_<color ID>/`. Colors live in `data/lego_colors.csv`.
-
-## Scripts
-- `scripts/add_piece.py`: teach a new piece or color, no training: `python scripts/add_piece.py photos/x/ --shape 3001 --color 21`
-- `scripts/build_dataset.py`: hardlinks photos into `dataset/<part>_<color ID>_<element>/` and writes `data/labels.csv`
-- `scripts/pick_label_subset.py`: picks 20 photos per brick for hand-labeling
-- `scripts/label.sh`, `scripts/review.sh`: open X-AnyLabeling on the labeling and review sets
-
-Run scripts from the repo root. Notebooks switch to the repo root themselves.
-
-## Setup
-```
-uv venv --python 3.12 .venv && uv pip install -r requirements.txt   # models
-uv venv .venv-label && uv pip install --python .venv-label x-anylabeling-cvhub[cpu]   # labeling tool
+lego_lookup.py     the recogniser (every notebook and script uses it)
+ldraw_render.py    GPU renderer for LDraw parts and towers
+app.py             web app to add new pieces
+scripts/           dataset building, labelling, adding pieces
+notebooks/         experiments (see above)
+data/              labels, boxes, gallery (in git)
+models/            shape_embed.pt in git, other weights downloaded
+docs/              this documentation
 ```

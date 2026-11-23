@@ -9,3 +9,4 @@ ipykernel
 gradio
 requests
 moderngl
+pandas
