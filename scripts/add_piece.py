@@ -6,9 +6,10 @@ os.chdir(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 import lego_lookup as L
 
 ap = argparse.ArgumentParser()
-ap.add_argument('folder'); ap.add_argument('--shape', required=True, help='part number, e.g. 3001')
-ap.add_argument('--color', required=True, help='official LEGO color ID, e.g. 21')
+ap.add_argument('folder'); ap.add_argument('--shape', default='', help='part number, e.g. 3001 (omit to teach only a color)')
+ap.add_argument('--color', default='', help='official LEGO color ID, e.g. 21 (omit to teach only a shape)')
 a = ap.parse_args()
+if not (a.shape or a.color): sys.exit('give --shape, --color, or both')
 paths = sorted(p for p in glob.glob(os.path.join(a.folder, '*')) if p.lower().endswith(('.jpg', '.jpeg', '.png')))
 if not paths: sys.exit(f'no jpg/png photos in {a.folder}')
 n = L.add_photos(paths, a.shape, a.color)

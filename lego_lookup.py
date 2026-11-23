@@ -72,8 +72,12 @@ def add_entries(g, vecs, labs, shape, color, srcs):
                 shape=np.concatenate([g['shape'], [shape] * n]), color=np.concatenate([g['color'], [str(color)] * n]),
                 src=np.concatenate([g['src'], srcs]))
 
-def add_photos(paths, shape, color, model=None, path=GALLERY):
-    """THE way to teach a new piece or color: ~20 single-brick photos -> gallery entries. Returns how many were added."""
+def add_photos(paths, shape='', color='', model=None, path=GALLERY):
+    """THE way to teach a new piece or color: ~20 single-brick photos -> gallery entries. Returns how many were added.
+    Give only `shape` (color unknown/irrelevant, e.g. renders) or only `color` (any shape, e.g. a new color):
+    an entry with an empty label is skipped by that vote in recognize()."""
+    assert shape or color, 'give a shape, a color, or both'
+    shape, color = str(shape), str(color)
     model = model or load_embedder()
     found = crops_from_photos(paths)
     assert found, 'no brick found in any photo'
@@ -86,20 +90,24 @@ def add_photos(paths, shape, color, model=None, path=GALLERY):
 
 # ---- recognition ----
 SHAPE_MIN_SIM = 0.977  # below this best-match similarity -> "unknown"; from notebooks/lookup.ipynb step 4 (keeps 95% of known pieces)
+CLOSED_MIN_SIM = 0.93  # closed_set mode: both-right 0.989 on the test split, but only 31% of unseen shapes are caught (notebooks/lookup.ipynb 4b)
 COLOR_MAX_DIST = 1e9  # shortcut: never says "unknown" color; calibrate once photos of a color NOT in the gallery exist
 
-def recognize(g, vecs, labs, k=5, shape_min_sim=None, color_max_dist=None):
-    """vecs (N,512), labs (N,3) -> list of (shape, shape_sim, color, color_dist). k-nearest vote, 'unknown' if too far."""
-    smin = SHAPE_MIN_SIM if shape_min_sim is None else shape_min_sim
+def recognize(g, vecs, labs, k=5, shape_min_sim=None, color_max_dist=None, closed_set=False):
+    """vecs (N,512), labs (N,3) -> list of (shape, shape_sim, color, color_dist). k-nearest vote, 'unknown' if too far.
+    closed_set=True (fixed set of known pieces): looser shape cutoff, and color voted only among colors seen with the predicted shape.
+    It rejects a new color on a known shape, so keep it off while the set is still growing."""
+    smin = (CLOSED_MIN_SIM if closed_set else SHAPE_MIN_SIM) if shape_min_sim is None else shape_min_sim
     cmax = COLOR_MAX_DIST if color_max_dist is None else color_max_dist
-    sims = vecs @ g['vec'].T
-    dl = np.linalg.norm(labs[:, None] - g['lab'][None], axis=2)
+    sims = np.where(g['shape'] != '', vecs @ g['vec'].T, -np.inf)   # color-only entries (shape '') can't vote on shape
+    dl = np.where(g['color'] != '', np.linalg.norm(labs[:, None] - g['lab'][None], axis=2), np.inf)   # shape-only entries can't vote on color
     out = []
     for i in range(len(vecs)):
-        nn = np.argsort(-sims[i])[:k]
-        shape = max(set(g['shape'][nn]), key=lambda s: sims[i][nn][g['shape'][nn] == s].sum())
-        nc = np.argsort(dl[i])[:k]
-        color = max(set(g['color'][nc]), key=list(g['color'][nc]).count)
-        s, d = float(sims[i][nn[0]]), float(dl[i][nc[0]])
+        nn = np.argsort(-sims[i])[:k]; nn = nn[np.isfinite(sims[i][nn])]
+        shape, s = ('unknown', -1.0) if not len(nn) else (max(set(g['shape'][nn]), key=lambda t: sims[i][nn][g['shape'][nn] == t].sum()), float(sims[i][nn[0]]))
+        di = dl[i]
+        if closed_set and len(nn): di = np.where(np.isin(g['color'], g['color'][g['shape'] == shape]), di, np.inf)   # only colors seen with this shape
+        nc = np.argsort(di)[:k]; nc = nc[np.isfinite(di[nc])]
+        color, d = ('unknown', float('inf')) if not len(nc) else (max(set(g['color'][nc]), key=list(g['color'][nc]).count), float(dl[i][nc[0]]))
         out.append((shape if s >= smin else 'unknown', s, color if d <= cmax else 'unknown', d))
     return out

@@ -13,6 +13,9 @@ synth/
 synth_v2/
 yolo41/
 yolo_box/
+yolo_tower/
+output/
+labeling/towers/
 eda/
 labeling/images/
 labeling/review/images/
@@ -29,3 +32,7 @@ runs/
 !models/shape_embed.pt
 photos/
 ldraw/
+renders/
+
+# graphify knowledge graph
+graphify-out/
